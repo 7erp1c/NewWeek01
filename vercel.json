@@ -3,14 +3,14 @@
   "name": "week01",
   "builds": [
     {
-      "src": "src/setting.ts",
+      "src": "src/app.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "src/setting.ts"
+      "dest": "src/app.ts"
     }
   ]
 }
