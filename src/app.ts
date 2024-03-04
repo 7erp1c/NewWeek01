@@ -16,12 +16,6 @@ export const initApp = () => {
         videos: []
     }
 
-    const getVideos = (req: Request, res: Response) => {
-        res
-            .status(200)
-            .json(db.videos)
-
-    }
 
     const getVideoView = (dbVideo: videoType): VideoView => {
         return {
@@ -32,7 +26,11 @@ export const initApp = () => {
         }
     }
 
-    app.get('/videos', getVideos)
+    app.get('/videos', (req: Request, res: Response)=>{
+        res
+            .status(200)
+            .json(db.videos)
+    })
     app.get('/', (req: Request, res: Response) => {
         res
             .status(200)
