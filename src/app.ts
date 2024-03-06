@@ -6,13 +6,20 @@ export const initApp = () => {
     const app = express()
     app.use(express.json())
 
-     type videoType = {
+    const graphicVideo = ["P144", "P240", "P360", "P480", "P720", "P1080", "P1440", "P2160"]
+
+
+    type videoType = {
         id: number,
         title: string,
         author: string,
-        availableResolutions: string
+        canBeDownloaded: boolean,
+        minAgeRestriction: null,
+        createdAt: string,
+        publicationDate: string,
+        availableResolutions: string[]
     }
-     const db: { videos: videoType[] } = {
+    const db: { videos: videoType[] } = {
         videos: []
     }
 
@@ -22,48 +29,87 @@ export const initApp = () => {
             id: dbVideo.id,
             title: dbVideo.title,
             author: dbVideo.author,
-            availableResolutions: dbVideo.availableResolutions
+            canBeDownloaded: dbVideo.canBeDownloaded,
+            minAgeRestriction: dbVideo.minAgeRestriction,
+            createdAt: dbVideo.createdAt,
+            publicationDate: dbVideo.publicationDate,
+            availableResolutions: dbVideo.availableResolutions.toString()
         }
     }
+    app.get('/', (req: Request, res: Response) => {
+        res
+            .status(200)
+            .json({x: "x1"})
 
-    app.get('/videos', (req: Request, res: Response)=>{
+    })
+    app.get('/videos', (req: Request, res: Response) => {
         res
             .status(200)
             .json(db.videos)
     })
-    app.get('/', (req: Request, res: Response) => {
-        res
-            .status(200)
-            .json({x:"x1"})
-
-    })
 
 
-    app.post('/videos', (req: Request,
+    app.post('/videos', (req: Request<{}, {}, { title: string, author: string, availableResolutions: string[] }>,
                          res: Response) => {
-        let title = req.body.title;
-        if (!title || typeof title !== 'string' || !title.trim() || title.length > 40) {
-            res.sendStatus(400).send({
+        const {title, author, availableResolutions} = req.body
+
+        const date = new Date();
+        date.setDate(date.getDate() + 1)//
+
+
+        if (!title || !title.trim() || title.length > 40 || title.length < 1) {
+            res.status(400).send({
                 "errorsMessages": [
                     {
-                        "message": "string",
-                        "field": "string"
+                        "message": "Bad Request",
+                        "field": "title"
+                    }
+                ]
+            })
+            return;
+        }
+        if (!author || !author.trim() || author.length > 40 || author.length < 1) {
+            res.status(400).send({
+                "errorsMessages": [
+                    {
+                        "message": "Bad Request",
+                        "field": "author"
                     }
                 ]
             })
             return;
         }
 
-        const newVideo = {
-            id: +(new Date()),
-            title: title,
-            author: 'it-incubator',
-            availableResolutions: 'P144'
-        };
-        db.videos.push(newVideo)
 
+        if (!availableResolutions ) {
+            res.status(400).send({
+                "errorsMessages": [
+                    {
+                        "message": "Bad Request",
+                        "field": "availableResolutions"
+                    }
+                ]
+            })
+            return;
+        }
+
+
+        const newVideo = {
+                id: +(new Date()),
+                title: title,
+                author: author,
+                canBeDownloaded: false,
+                minAgeRestriction: null,
+                createdAt: new Date().toISOString(),
+                publicationDate: date.toISOString(),
+                availableResolutions: availableResolutions
+            }
+        ;
+        db.videos.push(newVideo)
+        console.log(newVideo)
         res.status(201).send(newVideo)
     })
+
 
     app.get('/videos/:id', (req: Request,
                             res: Response) => {
@@ -83,11 +129,11 @@ export const initApp = () => {
             res.sendStatus(400).send({
                 "errorsMessages": [
                     {
-                        "message": "string",
-                        "field": "string"
+                        "message": "Bad Request",
+                        "field": "title"
                     }
                 ]
-            })//плохой запрос
+            })
             return;
         }
         const id = +req.params.videosId;
