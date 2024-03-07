@@ -6,5 +6,5 @@ export type VideoView = {
     minAgeRestriction: null,
     createdAt: string,
     publicationDate: string,
-    availableResolutions: string
+    availableResolutions: string[]
 }

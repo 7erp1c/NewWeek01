@@ -33,7 +33,7 @@ export const initApp = () => {
             minAgeRestriction: dbVideo.minAgeRestriction,
             createdAt: dbVideo.createdAt,
             publicationDate: dbVideo.publicationDate,
-            availableResolutions: dbVideo.availableResolutions.toString()
+            availableResolutions: dbVideo.availableResolutions
         }
     }
     app.get('/', (req: Request, res: Response) => {
@@ -79,8 +79,8 @@ export const initApp = () => {
             return;
         }
 
-        const CheckingTheArray = availableResolutions.filter(x => !graphicVideo.includes(x))
-        if (!availableResolutions||CheckingTheArray.length > 0 ) {
+        const filteredResolutions = availableResolutions.filter(x => !graphicVideo.includes(x))
+        if (filteredResolutions.length > 0 ) {
             res.status(400).send({
                 "errorsMessages": [
                     {
