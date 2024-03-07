@@ -122,10 +122,10 @@ export const initApp = () => {
     })
 
 
-    app.put('/videos/:videosId', (req: Request, res: Response) => {
-        let title = req.body.title
-        if (!title || typeof title !== 'string' || !title.trim() || title.length > 40) {
-            res.sendStatus(400).send({
+    app.put('/videos/:id', (req: Request<{id:number}, {}, { title: string, author: string,availableResolutions: string[]}>, res: Response) => {
+        const {title, author, availableResolutions} = req.body
+        if (!title || !title.trim() || title.length > 40 || title.length < 1) {
+            res.status(400).send({
                 "errorsMessages": [
                     {
                         "message": "Bad Request",
@@ -135,11 +135,49 @@ export const initApp = () => {
             })
             return;
         }
-        const id = +req.params.videosId;
-        const video = db.videos.find(v => v.id === id);
-        if (video) {
-            video.title = title;
-            res.status(204).send(video)
+        if (!author || !author.trim() || author.length > 20 || author.length < 1) {
+            res.status(400).send({
+                "errorsMessages": [
+                    {
+                        "message": "Bad Request",
+                        "field": "author"
+                    }
+                ]
+            })
+            return;
+        }
+
+        // const filteredResolutions = availableResolutions.filter(x => !graphicVideo.includes(x))
+        // if (filteredResolutions.length > 0 ) {
+        //     res.status(400).send({
+        //         "errorsMessages": [
+        //             {
+        //                 "message": "Bad Request",
+        //                 "field": "availableResolutions"
+        //             }
+        //         ]
+        //     })
+        //     return;
+        // }
+        // if (minAgeRestriction.length > 0 ) {
+        //     res.status(400).send({
+        //         "errorsMessages": [
+        //             {
+        //                 "message": "Bad Request",
+        //                 "field": "availableResolutions"
+        //             }
+        //         ]
+        //     })
+        //     return;
+        // }
+
+        const id = +req.params.id;
+
+        const foundVideo = db.videos.find(v => v.id === id);
+        if (foundVideo) {
+            foundVideo.title = title;
+            foundVideo.author = author;
+            res.status(204).send(foundVideo)
         } else {
             res.send(404)
         }
