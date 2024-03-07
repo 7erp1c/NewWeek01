@@ -56,7 +56,6 @@ export const initApp = () => {
         const date = new Date();
         date.setDate(date.getDate() + 1)//
 
-
         if (!title || !title.trim() || title.length > 40 || title.length < 1) {
             res.status(400).send({
                 "errorsMessages": [
@@ -68,7 +67,7 @@ export const initApp = () => {
             })
             return;
         }
-        if (!author || !author.trim() || author.length > 40 || author.length < 1) {
+        if (!author || !author.trim() || author.length > 20 || author.length < 1) {
             res.status(400).send({
                 "errorsMessages": [
                     {
@@ -80,13 +79,8 @@ export const initApp = () => {
             return;
         }
 
-        // const a1 = ["a", "b", "c", "t"];
-        // const a2 = ["d", "a", "t", "e", "g"];
         const CheckingTheArray = availableResolutions.filter(x => !graphicVideo.includes(x))
-        console.log(CheckingTheArray);
-
-
-        if (!availableResolutions||CheckingTheArray.length>0 ) {
+        if (!availableResolutions||CheckingTheArray.length > 0 ) {
             res.status(400).send({
                 "errorsMessages": [
                     {
