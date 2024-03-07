@@ -80,8 +80,13 @@ export const initApp = () => {
             return;
         }
 
+        // const a1 = ["a", "b", "c", "t"];
+        // const a2 = ["d", "a", "t", "e", "g"];
+        const CheckingTheArray = availableResolutions.filter(x => !graphicVideo.includes(x))
+        console.log(CheckingTheArray);
 
-        if (!availableResolutions ) {
+
+        if (!availableResolutions||CheckingTheArray.length>0 ) {
             res.status(400).send({
                 "errorsMessages": [
                     {
