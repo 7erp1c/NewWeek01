@@ -14,7 +14,7 @@ export const initApp = () => {
         title: string,
         author: string,
         canBeDownloaded: boolean,
-        minAgeRestriction: null,
+        minAgeRestriction: null | number,
         createdAt: string,
         publicationDate: string,
         availableResolutions: string[]
@@ -49,7 +49,7 @@ export const initApp = () => {
     })
 
 
-    app.post('/videos', (req: Request<{}, {}, { title: string, author: string, availableResolutions: string[] }>,
+    app.post('/videos', (req: Request<{}, {}, { title: string, author: string, availableResolutions: string[]}>,
                          res: Response) => {
         const {title, author, availableResolutions} = req.body
 
@@ -122,8 +122,11 @@ export const initApp = () => {
     })
 
 
-    app.put('/videos/:id', (req: Request<{id:number}, {}, { title: string, author: string,availableResolutions: string[]}>, res: Response) => {
-        const {title, author, availableResolutions} = req.body
+    app.put('/videos/:id', (req: Request<{id:number}, {},
+        { title: string, author: string,availableResolutions: string[],canBeDownloaded: boolean, publicationDate: string, minAgeRestriction:number}>,
+                            res: Response) => {
+        const {title, author, availableResolutions,canBeDownloaded,publicationDate } = req.body
+        const minAgeRestriction = +req.body.minAgeRestriction
         if (!title || !title.trim() || title.length > 40 || title.length < 1) {
             res.status(400).send({
                 "errorsMessages": [
@@ -147,36 +150,41 @@ export const initApp = () => {
             return;
         }
 
-        // const filteredResolutions = availableResolutions.filter(x => !graphicVideo.includes(x))
-        // if (filteredResolutions.length > 0 ) {
-        //     res.status(400).send({
-        //         "errorsMessages": [
-        //             {
-        //                 "message": "Bad Request",
-        //                 "field": "availableResolutions"
-        //             }
-        //         ]
-        //     })
-        //     return;
-        // }
-        // if (minAgeRestriction.length > 0 ) {
-        //     res.status(400).send({
-        //         "errorsMessages": [
-        //             {
-        //                 "message": "Bad Request",
-        //                 "field": "availableResolutions"
-        //             }
-        //         ]
-        //     })
-        //     return;
-        // }
+        const filteredResolutions = availableResolutions.filter(x => !graphicVideo.includes(x))
+        if (filteredResolutions.length > 0 ) {
+            res.status(400).send({
+                "errorsMessages": [
+                    {
+                        "message": "Bad Request",
+                        "field": "availableResolutions"
+                    }
+                ]
+            })
+            return;
+        }
+        if (minAgeRestriction > 0 ||minAgeRestriction < 18) {
+            res.status(400).send({
+                "errorsMessages": [
+                    {
+                        "message": "Bad Request",
+                        "field": "minAgeRestriction"
+                    }
+                ]
+            })
+            return;
+        }
 
         const id = +req.params.id;
+
 
         const foundVideo = db.videos.find(v => v.id === id);
         if (foundVideo) {
             foundVideo.title = title;
             foundVideo.author = author;
+            foundVideo.canBeDownloaded = canBeDownloaded;
+            foundVideo.minAgeRestriction = minAgeRestriction;
+            foundVideo.publicationDate = publicationDate;
+            foundVideo.availableResolutions = availableResolutions;
             res.status(204).send(foundVideo)
         } else {
             res.send(404)
