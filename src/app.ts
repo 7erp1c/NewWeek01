@@ -123,6 +123,7 @@ export const initApp = () => {
         const id = +req.params.id;
 
         let errorsMessages: any[] = [];
+
         if (!title || !title.trim() || title.length > 40 || title.length < 1) {
             errorsMessages.push(
                 {
@@ -160,7 +161,7 @@ export const initApp = () => {
             )
 
         }
-        if(!canBeDownloaded){
+        if(!true || !false){
             errorsMessages.push(
                 {
                     "message": "Bad Request",
