@@ -1,6 +1,8 @@
 import express, {Request, Response} from 'express'
 
-import {VideoView} from "./models/videoView";
+
+// import {typeVideoForUpdate} from "./models/typeForUpdateVideos";
+import {getVideoView, videoType } from './models/typeForGetAndPost';
 
 export const initApp = () => {
     const app = express()
@@ -9,33 +11,13 @@ export const initApp = () => {
     const graphicVideo = ["P144", "P240", "P360", "P480", "P720", "P1080", "P1440", "P2160"]
 
 
-    type videoType = {
-        id: number,
-        title: string,
-        author: string,
-        canBeDownloaded: boolean,
-        minAgeRestriction: null | number,
-        createdAt: string,
-        publicationDate: string,
-        availableResolutions: string[]
-    }
+
     const db: { videos: videoType[] } = {
         videos: []
     }
 
 
-    const getVideoView = (dbVideo: videoType): VideoView => {
-        return {
-            id: dbVideo.id,
-            title: dbVideo.title,
-            author: dbVideo.author,
-            canBeDownloaded: dbVideo.canBeDownloaded,
-            minAgeRestriction: dbVideo.minAgeRestriction,
-            createdAt: dbVideo.createdAt,
-            publicationDate: dbVideo.publicationDate,
-            availableResolutions: dbVideo.availableResolutions
-        }
-    }
+
     app.get('/', (req: Request, res: Response) => {
         res
             .status(200)
@@ -123,10 +105,13 @@ export const initApp = () => {
 
 
     app.put('/videos/:id', (req: Request<{id:number}, {},
-        { title: string, author: string,availableResolutions: string[],canBeDownloaded: boolean, publicationDate: string, minAgeRestriction:number}>,
+        { title: string, author: string,availableResolutions: string[],canBeDownloaded: boolean, publicationDate: string,
+            minAgeRestriction:number}>,
                             res: Response) => {
         const {title, author, availableResolutions,canBeDownloaded,publicationDate } = req.body
-        const minAgeRestriction = +req.body.minAgeRestriction
+         const minAgeRestriction = +req.body.minAgeRestriction
+
+
         if (!title || !title.trim() || title.length > 40 || title.length < 1) {
             res.status(400).send({
                 "errorsMessages": [
@@ -149,7 +134,6 @@ export const initApp = () => {
             })
             return;
         }
-
         const filteredResolutions = availableResolutions.filter(x => !graphicVideo.includes(x))
         if (filteredResolutions.length > 0 ) {
             res.status(400).send({
@@ -177,13 +161,13 @@ export const initApp = () => {
         const id = +req.params.id;
 
 
-        const foundVideo = db.videos.find(v => v.id === id);
+        const foundVideo= db.videos.find(v => v.id === id);
         if (foundVideo) {
             foundVideo.title = title;
             foundVideo.author = author;
             foundVideo.canBeDownloaded = canBeDownloaded;
             foundVideo.minAgeRestriction = minAgeRestriction;
-            foundVideo.publicationDate = publicationDate;
+            foundVideo.publicationDate = new Date().toISOString();
             foundVideo.availableResolutions = availableResolutions;
             res.status(204).send(foundVideo)
         } else {
