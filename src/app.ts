@@ -18,6 +18,8 @@ export const initApp = () => {
     const newDate = new Date().toISOString();
     const datePost = new Date();
     datePost.setDate(datePost.getDate() + 1)
+    const datePut = new Date();
+    datePut.setDate(datePut.getDate() + 6)
 
 
 
