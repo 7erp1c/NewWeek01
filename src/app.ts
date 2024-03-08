@@ -16,6 +16,9 @@ export const initApp = () => {
         videos: []
     }
 
+    const date = new Date();
+    date.setDate(date.getDate() + 1)//
+
 
 
     app.get('/', (req: Request, res: Response) => {
@@ -35,8 +38,7 @@ export const initApp = () => {
                          res: Response) => {
         const {title, author, availableResolutions} = req.body
 
-        const date = new Date();
-        date.setDate(date.getDate() + 1)//
+
 
         if (!title || !title.trim() || title.length > 40 || title.length < 1) {
             res.status(400).send({
@@ -146,7 +148,7 @@ export const initApp = () => {
             })
             return;
         }
-        if (minAgeRestriction > 0 ||minAgeRestriction < 18) {
+        if (minAgeRestriction < 0 ||minAgeRestriction > 18) {
             res.status(400).send({
                 "errorsMessages": [
                     {
@@ -167,7 +169,7 @@ export const initApp = () => {
             foundVideo.author = author;
             foundVideo.canBeDownloaded = canBeDownloaded;
             foundVideo.minAgeRestriction = minAgeRestriction;
-            foundVideo.publicationDate = new Date().toISOString();
+            foundVideo.publicationDate = date.toISOString();
             foundVideo.availableResolutions = availableResolutions;
             res.status(204).send(foundVideo)
         } else {
