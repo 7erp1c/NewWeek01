@@ -16,8 +16,7 @@ export const initApp = () => {
         videos: []
     }
 
-    const date = new Date();
-    date.setDate(date.getDate() + 1)//
+
 
 
 
@@ -38,7 +37,8 @@ export const initApp = () => {
                          res: Response) => {
         const {title, author, availableResolutions} = req.body
 
-
+        const datePost = new Date();
+        datePost.setDate(datePost.getDate() + 1)//
 
         if (!title || !title.trim() || title.length > 40 || title.length < 1) {
             res.status(400).send({
@@ -77,17 +77,16 @@ export const initApp = () => {
         }
 
 
-        const newVideo = {
+        let newVideo = {
                 id: +(new Date()),
                 title: title,
                 author: author,
                 canBeDownloaded: false,
                 minAgeRestriction: null,
                 createdAt: new Date().toISOString(),
-                publicationDate: date.toISOString(),
+                publicationDate: datePost.toISOString(),
                 availableResolutions: availableResolutions
-            }
-        ;
+            };
         db.videos.push(newVideo)
         console.log(newVideo)
         res.status(201).send(newVideo)
@@ -108,11 +107,17 @@ export const initApp = () => {
 
     app.put('/videos/:id', (req: Request<{id:number}, {},
         { title: string, author: string,availableResolutions: string[],canBeDownloaded: boolean, publicationDate: string,
-            minAgeRestriction:number}>,
+            minAgeRestriction:number,createdAt:string}>,
                             res: Response) => {
-        const {title, author, availableResolutions,canBeDownloaded,publicationDate } = req.body
-         const minAgeRestriction = +req.body.minAgeRestriction
+        const {title, author, availableResolutions,canBeDownloaded,
+            publicationDate} = req.body
 
+        const minAgeRestriction = +req.body.minAgeRestriction
+        const createdAt = req.body.createdAt
+        const id = +req.params.id;
+
+        const datePut = new Date();
+        datePut.setDate(datePut.getDate() + 1)//
 
         if (!title || !title.trim() || title.length > 40 || title.length < 1) {
             res.status(400).send({
@@ -160,16 +165,17 @@ export const initApp = () => {
             return;
         }
 
-        const id = +req.params.id;
+
 
 
         const foundVideo= db.videos.find(v => v.id === id);
         if (foundVideo) {
             foundVideo.title = title;
             foundVideo.author = author;
-            foundVideo.canBeDownloaded = canBeDownloaded;
+            foundVideo.canBeDownloaded = canBeDownloaded ?? false;
             foundVideo.minAgeRestriction = minAgeRestriction;
-            foundVideo.publicationDate = date.toISOString();
+
+            foundVideo.publicationDate = datePut.toISOString();
             foundVideo.availableResolutions = availableResolutions;
             res.status(204).send(foundVideo)
         } else {
