@@ -2,14 +2,13 @@ import express, {Request, Response} from 'express'
 
 
 // import {typeVideoForUpdate} from "./models/typeForUpdateVideos";
-import {getVideoView, videoType } from './models/typeForGetAndPost';
+import {getVideoView, videoType} from './models/typeForGetAndPost';
 
 export const initApp = () => {
     const app = express()
     app.use(express.json())
 
     const graphicVideo = ["P144", "P240", "P360", "P480", "P720", "P1080", "P1440", "P2160"]
-
 
 
     const db: { videos: videoType[] } = {
@@ -22,7 +21,6 @@ export const initApp = () => {
 
     const datePut = new Date();
     datePut.setDate(datePut.getDate() + 6)
-
 
 
     app.get('/', (req: Request, res: Response) => {
@@ -38,59 +36,59 @@ export const initApp = () => {
     })
 
 
-    app.post('/videos', (req: Request<{}, {}, { title: string, author: string, availableResolutions: string[]}>,
+    app.post('/videos', (req: Request<{}, {}, { title: string, author: string, availableResolutions: string[] }>,
                          res: Response) => {
         const {title, author, availableResolutions} = req.body
-
-        //
-
+        let errorsMessages:any[] = [];
         if (!title || !title.trim() || title.length > 40 || title.length < 1) {
-            res.status(400).send({
-                "errorsMessages": [
-                    {
-                        "message": "Bad Request",
-                        "field": "title"
-                    }
-                ]
-            })
-            return;
+            errorsMessages.push(
+                {
+                    "message": "Bad Request",
+                    "field": "title"
+                }
+            )
+
         }
+
         if (!author || !author.trim() || author.length > 20 || author.length < 1) {
-            res.status(400).send({
-                "errorsMessages": [
-                    {
-                        "message": "Bad Request",
-                        "field": "author"
-                    }
-                ]
-            })
-            return;
+            errorsMessages.push(
+                {
+                    "message": "Bad Request",
+                    "field": "author"
+                }
+            )
+
         }
 
         const filteredResolutions = availableResolutions.filter(x => !graphicVideo.includes(x))
-        if (filteredResolutions.length > 0 ) {
-            res.status(400).send({
-                "errorsMessages": [
-                    {
-                        "message": "Bad Request",
-                        "field": "availableResolutions"
-                    }
-                ]
-            })
-            return;
+        if (filteredResolutions.length > 0) {
+            errorsMessages.push(
+                {
+                    "message": "Bad Request",
+                    "field": "availableResolutions"
+                }
+            )
+
+        }
+        if(errorsMessages.length>0){
+        res.status(400).send({
+            "errorsMessages":
+            errorsMessages
+        }
+        )
+            return
         }
 
-
         let newVideo = {
-                id: +(new Date()),
-                title: title,
-                author: author,
-                canBeDownloaded: false,
-                minAgeRestriction: null,
-                createdAt: newDate,
-                publicationDate: datePost.toISOString(),
-                availableResolutions: availableResolutions
-            };
+            id: +(new Date()),
+            title: title,
+            author: author,
+            canBeDownloaded: false,
+            minAgeRestriction: null,
+            createdAt: newDate,
+            publicationDate: datePost.toISOString(),
+            availableResolutions: availableResolutions
+        };
         db.videos.push(newVideo)
         console.log(newVideo)
         res.status(201).send(newVideo)
@@ -109,54 +107,71 @@ export const initApp = () => {
     })
 
 
-    app.put('/videos/:id', (req: Request<{id:number}, {},
-        { title: string, author: string,availableResolutions: string[],canBeDownloaded: boolean, publicationDate: string,
-            minAgeRestriction:number,createdAt:string}>,
+    app.put('/videos/:id', (req: Request<{ id: number }, {},
+                                {
+                                    title: string, author: string, availableResolutions: string[], canBeDownloaded: boolean, publicationDate: string,
+                                    minAgeRestriction: number, createdAt: string
+                                }>,
                             res: Response) => {
-        const {title, author, availableResolutions,canBeDownloaded,
-            publicationDate} = req.body
+        const {
+            title, author, availableResolutions, canBeDownloaded,
+            publicationDate
+        } = req.body
 
         const minAgeRestriction = +req.body.minAgeRestriction
         const createdAt = req.body.createdAt
         const id = +req.params.id;
-
-
-
+        let errorsMessages:any[] = [];
         if (!title || !title.trim() || title.length > 40 || title.length < 1) {
-            res.status(400).send({
-                "errorsMessages": [
-                    {
-                        "message": "Bad Request",
-                        "field": "title"
-                    }
-                ]
-            })
-            return;
+            errorsMessages.push(
+                {
+                    "message": "Bad Request",
+                    "field": "title"
+                }
+            )
+
         }
+
         if (!author || !author.trim() || author.length > 20 || author.length < 1) {
-            res.status(400).send({
-                "errorsMessages": [
-                    {
-                        "message": "Bad Request",
-                        "field": "author"
-                    }
-                ]
-            })
-            return;
+            errorsMessages.push(
+                {
+                    "message": "Bad Request",
+                    "field": "author"
+                }
+            )
+
         }
+
         const filteredResolutions = availableResolutions.filter(x => !graphicVideo.includes(x))
-        if (filteredResolutions.length > 0 ) {
-            res.status(400).send({
-                "errorsMessages": [
+        if (filteredResolutions.length > 0) {
+            errorsMessages.push(
+                {
+                    "message": "Bad Request",
+                    "field": "availableResolutions"
+                }
+            )
+
+        }
+        if (minAgeRestriction < 0 || minAgeRestriction > 18) {
+            errorsMessages.push(
                     {
                         "message": "Bad Request",
-                        "field": "availableResolutions"
+                        "field": "minAgeRestriction"
                     }
-                ]
-            })
-            return;
+
+            )
+
         }
-        if (minAgeRestriction < 0 ||minAgeRestriction > 18) {
+        if(errorsMessages.length>0){
+            res.status(400).send({
+                    "errorsMessages":
+                    errorsMessages
+                }
+            )
+            return
+        }
+
+        if (minAgeRestriction < 0 || minAgeRestriction > 18) {
             res.status(400).send({
                 "errorsMessages": [
                     {
@@ -169,9 +184,7 @@ export const initApp = () => {
         }
 
 
-
-
-        const foundVideo= db.videos.find(v => v.id === id);
+        const foundVideo = db.videos.find(v => v.id === id);
         if (foundVideo) {
             foundVideo.title = title;
             foundVideo.author = author;
