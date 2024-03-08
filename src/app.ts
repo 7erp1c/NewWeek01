@@ -174,7 +174,7 @@ export const initApp = () => {
             foundVideo.canBeDownloaded = canBeDownloaded ?? false;
             foundVideo.minAgeRestriction = minAgeRestriction;
 
-            foundVideo.publicationDate = datePost.toISOString();
+            foundVideo.publicationDate = newDate;
             foundVideo.availableResolutions = availableResolutions;
             res.status(204).send(foundVideo)
         } else {
