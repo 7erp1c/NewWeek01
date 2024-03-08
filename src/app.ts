@@ -1,7 +1,4 @@
 import express, {Request, Response} from 'express'
-
-
-// import {typeVideoForUpdate} from "./models/typeForUpdateVideos";
 import {getVideoView, videoType} from './models/typeForGetAndPost';
 
 export const initApp = () => {
@@ -9,7 +6,6 @@ export const initApp = () => {
     app.use(express.json())
 
     const graphicVideo = ["P144", "P240", "P360", "P480", "P720", "P1080", "P1440", "P2160"]
-
 
     const db: { videos: videoType[] } = {
         videos: []
@@ -29,6 +25,8 @@ export const initApp = () => {
             .json({x: "x1"})
 
     })
+
+
     app.get('/videos', (req: Request, res: Response) => {
         res
             .status(200)
@@ -39,7 +37,7 @@ export const initApp = () => {
     app.post('/videos', (req: Request<{}, {}, { title: string, author: string, availableResolutions: string[] }>,
                          res: Response) => {
         const {title, author, availableResolutions} = req.body
-        let errorsMessages:any[] = [];
+        let errorsMessages: any[] = [];
         if (!title || !title.trim() || title.length > 40 || title.length < 1) {
             errorsMessages.push(
                 {
@@ -70,12 +68,12 @@ export const initApp = () => {
             )
 
         }
-        if(errorsMessages.length>0){
-        res.status(400).send({
-            "errorsMessages":
-            errorsMessages
-        }
-        )
+        if (errorsMessages.length > 0) {
+            res.status(400).send({
+                    "errorsMessages":
+                    errorsMessages
+                }
+            )
             return
         }
 
@@ -107,21 +105,24 @@ export const initApp = () => {
     })
 
 
-    app.put('/videos/:id', (req: Request<{ id: number }, {},
-                                {
-                                    title: string, author: string, availableResolutions: string[], canBeDownloaded: boolean, publicationDate: string,
-                                    minAgeRestriction: number, createdAt: string
-                                }>,
-                            res: Response) => {
+
+
+    app.put('/videos/:id', (req: Request<{ id: number }, {}, {
+        title: string,
+        author: string,
+        availableResolutions: string[],
+        canBeDownloaded: boolean,
+        publicationDate: string,
+        minAgeRestriction: number,
+        createdAt: string}>, res: Response) => {
         const {
             title, author, availableResolutions, canBeDownloaded,
             publicationDate
         } = req.body
-
         const minAgeRestriction = +req.body.minAgeRestriction
-        const createdAt = req.body.createdAt
         const id = +req.params.id;
-        let errorsMessages:any[] = [];
+
+        let errorsMessages: any[] = [];
         if (!title || !title.trim() || title.length > 40 || title.length < 1) {
             errorsMessages.push(
                 {
@@ -131,7 +132,6 @@ export const initApp = () => {
             )
 
         }
-
         if (!author || !author.trim() || author.length > 20 || author.length < 1) {
             errorsMessages.push(
                 {
@@ -141,7 +141,6 @@ export const initApp = () => {
             )
 
         }
-
         const filteredResolutions = availableResolutions.filter(x => !graphicVideo.includes(x))
         if (filteredResolutions.length > 0) {
             errorsMessages.push(
@@ -154,33 +153,28 @@ export const initApp = () => {
         }
         if (minAgeRestriction < 0 || minAgeRestriction > 18) {
             errorsMessages.push(
-                    {
-                        "message": "Bad Request",
-                        "field": "minAgeRestriction"
-                    }
-
+                {
+                    "message": "Bad Request",
+                    "field": "minAgeRestriction"
+                }
             )
 
         }
-        if(errorsMessages.length>0){
+        if(!canBeDownloaded){
+            errorsMessages.push(
+                {
+                    "message": "Bad Request",
+                    "field": "canBeDownloaded"
+                }
+            )
+        }
+        if (errorsMessages.length > 0) {
             res.status(400).send({
                     "errorsMessages":
                     errorsMessages
                 }
             )
             return
-        }
-
-        if (minAgeRestriction < 0 || minAgeRestriction > 18) {
-            res.status(400).send({
-                "errorsMessages": [
-                    {
-                        "message": "Bad Request",
-                        "field": "minAgeRestriction"
-                    }
-                ]
-            })
-            return;
         }
 
 
@@ -197,14 +191,19 @@ export const initApp = () => {
         } else {
             res.send(404)
         }
-
-
     })
 
 
-    app.delete('/videos/:id', (req: Request, res: Response) => {
-        db.videos = db.videos.filter(c => c.id !== +req.params.id);//переприсваиваем значение с помощью филтрации
+    app.delete('/videos/:id', (req: Request<{id:number}>, res: Response) => {
 
+
+
+        const deleteVideo = db.videos = db.videos
+            .filter(c => c.id !== +req.params.id);//переприсваиваем значение с помощью филтрации
+        if (deleteVideo === undefined) {
+            res.sendStatus(404)//Not Found
+            return;
+        }
         res.sendStatus(204)//no content
     })
 
