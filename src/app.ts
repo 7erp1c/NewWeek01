@@ -16,8 +16,10 @@ export const initApp = () => {
         videos: []
     }
     const newDate = new Date().toISOString();
+
     const datePost = new Date();
     datePost.setDate(datePost.getDate() + 1)
+
     const datePut = new Date();
     datePut.setDate(datePut.getDate() + 6)
 
@@ -176,7 +178,7 @@ export const initApp = () => {
             foundVideo.canBeDownloaded = canBeDownloaded ?? false;
             foundVideo.minAgeRestriction = minAgeRestriction;
 
-            foundVideo.publicationDate = newDate;
+            foundVideo.publicationDate = datePut.toISOString();
             foundVideo.availableResolutions = availableResolutions;
             res.status(204).send(foundVideo)
         } else {
