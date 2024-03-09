@@ -115,10 +115,8 @@ export const initApp = () => {
         publicationDate: string,
         minAgeRestriction: number,
         createdAt: string}>, res: Response) => {
-        const {
-            title, author, availableResolutions, canBeDownloaded,
-            publicationDate
-        } = req.body
+        const {title, author, availableResolutions, canBeDownloaded,
+            publicationDate} = req.body
         const minAgeRestriction = +req.body.minAgeRestriction
         const id = +req.params.id;
 
@@ -161,7 +159,7 @@ export const initApp = () => {
             )
 
         }
-        if(!true || !false){
+        if(!canBeDownloaded){
             errorsMessages.push(
                 {
                     "message": "Bad Request",
@@ -185,7 +183,6 @@ export const initApp = () => {
             foundVideo.author = author;
             foundVideo.canBeDownloaded = canBeDownloaded ?? false;
             foundVideo.minAgeRestriction = minAgeRestriction;
-
             foundVideo.publicationDate = datePut.toISOString();
             foundVideo.availableResolutions = availableResolutions;
             res.status(204).send(foundVideo)
