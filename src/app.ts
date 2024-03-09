@@ -10,13 +10,7 @@ export const initApp = () => {
     const db: { videos: videoType[] } = {
         videos: []
     }
-    const newDate = new Date().toISOString();
 
-    const datePost = new Date();
-    datePost.setDate(datePost.getDate() + 1)
-
-    const datePut = new Date();
-    datePut.setDate(datePut.getDate() + 6)
 
 
     app.get('/', (req: Request, res: Response) => {
@@ -37,6 +31,11 @@ export const initApp = () => {
     app.post('/videos', (req: Request<{}, {}, { title: string, author: string, availableResolutions: string[] }>,
                          res: Response) => {
         const {title, author, availableResolutions} = req.body
+
+        const newDate = new Date().toISOString();
+        const datePost = new Date();
+        datePost.setDate(datePost.getDate() + 1)
+
         let errorsMessages: any[] = [];
         if (!title || !title.trim() || title.length > 40 || title.length < 1) {
             errorsMessages.push(
@@ -120,6 +119,9 @@ export const initApp = () => {
         const minAgeRestriction = +req.body.minAgeRestriction
         const id = +req.params.id;
 
+        const datePut = new Date();
+        datePut.setDate(datePut.getDate() + 1)
+
         let errorsMessages: any[] = [];
 
         if (!title || !title.trim() || title.length > 40 || title.length < 1) {
@@ -160,6 +162,14 @@ export const initApp = () => {
 
         }
         if(typeof canBeDownloaded !== 'boolean'){
+            errorsMessages.push(
+                {
+                    "message": "Bad Request",
+                    "field": "canBeDownloaded"
+                }
+            )
+        }
+        if(!publicationDate){
             errorsMessages.push(
                 {
                     "message": "Bad Request",
