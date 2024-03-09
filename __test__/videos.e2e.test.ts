@@ -1,66 +1,39 @@
-import {agent as supertest} from "supertest";
-import {app, db} from "../src/app";
-import {after} from "node:test";
-import request from "supertest";
+import {req} from './test-helpers'
+import {SETTINGS} from "../src/setting"
+import dotenv from 'dotenv'
+dotenv.config()
+// import {setDB} from '../src/db/db'
+// import {dataset1} from './datasets'
 
 
-const req = supertest(app)
-
-describe('/videos',()=>{
-    beforeAll(async()=>{
-await  req.delete('/__test__/data').expect(204)
-    })
-    afterAll(async ()=>{
-
+describe('/videos', () => {
+    beforeAll(async () => {
+        // await req.delete('/testing/all-data')
     })
 
-    it('GET products = []',async ()=>{
-       // db.videos = [{title: 'cc'}]
+    it('should get empty array', async () => {
+        // setDB()
 
         const res = await req
-            .get('/videos')
+            .get(SETTINGS.PATH.VIDEOS)
             .expect(200)
 
         console.log(res.body)
-        expect(res.body.length).toBe(0)
+
+        // expect(res.body.length).toBe(0)
     })
-    let createVideos: any = null;
+    it('should get not empty array', async () => {
+        // setDB(dataset1)
 
- /*   it('должен создать видео с корректными входящими данными', async () => {
-        const createResponse = await request(app)
-            .post('/videos')
-            .send({title: 'tru-la-la courses'})
-            .expect(201)
-        createVideos = createResponse.body;
+        const res = await req
+            .get(SETTINGS.PATH.VIDEOS)
+            .expect(200)
 
-        expect(createVideos).toEqual({
-            id: expect.any(Number),
-            title: 'tru-la-la courses',
-            author: 'it-incubator',
-            availableResolutions: 'P144'
-        })
+        console.log(res.body)
 
-        await request(app)
-            .get('/courses')
-            .expect(200, [createVideos])
-
-    })*/
-
-
-    /*it('должен удалить видео', async () => {
-      let id = +req.params.id
-        await request(app)
-            .delete('/videos/' + id)
-            .expect(204)
-        await request(app)
-            .get('/videos/' + id)
-            .expect(404)
-
-    })*/
-
-
-
-
+        // expect(res.body.length).toBe(1)
+        // expect(res.body[0]).toEqual(dataset1.videos[0])
+    })
 })
 
 
