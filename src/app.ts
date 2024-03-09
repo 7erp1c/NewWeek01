@@ -111,7 +111,7 @@ export const initApp = () => {
         title: string,
         author: string,
         availableResolutions: string[],
-        canBeDownloaded: boolean,
+        canBeDownloaded: boolean | undefined,
         publicationDate: string,
         minAgeRestriction: number,
         createdAt: string}>, res: Response) => {
@@ -159,7 +159,7 @@ export const initApp = () => {
             )
 
         }
-        if(!canBeDownloaded){
+        if(typeof canBeDownloaded !== 'boolean'){
             errorsMessages.push(
                 {
                     "message": "Bad Request",
@@ -194,15 +194,16 @@ export const initApp = () => {
 
     app.delete('/videos/:id', (req: Request<{id:number}>, res: Response) => {
 
+        const video =  db.videos.find((video => video.id === +req.params.id))
+        if (!video ) {
+            return res.sendStatus(404)//Not Found
 
-
-        const deleteVideo = db.videos = db.videos
-            .filter(c => c.id !== +req.params.id);//переприсваиваем значение с помощью филтрации
-        if (deleteVideo === undefined) {
-            res.sendStatus(404)//Not Found
-            return;
         }
-        res.sendStatus(204)//no content
+
+        db.videos = db.videos
+            .filter(c => c.id !== +req.params.id);//переприсваиваем значение с помощью филтрации
+
+        return  res.sendStatus(204)//no content
     })
 
 
