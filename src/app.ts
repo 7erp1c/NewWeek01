@@ -168,7 +168,7 @@ export const initApp = () => {
                 }
             )
         }
-        if(publicationDate){
+        if(publicationDate.length<21){
             errorsMessages.push(
                 {
                     "message": "Bad Request",
