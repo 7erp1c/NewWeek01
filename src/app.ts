@@ -119,8 +119,7 @@ export const initApp = () => {
         const minAgeRestriction = +req.body.minAgeRestriction
         const id = +req.params.id;
 
-        const datePut = new Date();
-        datePut.setDate(datePut.getDate() + 1)
+
 
         let errorsMessages: any[] = [];
 
@@ -169,11 +168,11 @@ export const initApp = () => {
                 }
             )
         }
-        if(!publicationDate){
+        if(publicationDate){
             errorsMessages.push(
                 {
                     "message": "Bad Request",
-                    "field": "canBeDownloaded"
+                    "field": "publicationDate"
                 }
             )
         }
@@ -187,13 +186,16 @@ export const initApp = () => {
         }
 
 
+        const datePut = new Date()
+        datePut.setDate(datePut.getDate() + 1);
+
         const foundVideo = db.videos.find(v => v.id === id);
         if (foundVideo) {
             foundVideo.title = title;
             foundVideo.author = author;
             foundVideo.canBeDownloaded = canBeDownloaded ?? false;
             foundVideo.minAgeRestriction = minAgeRestriction;
-            foundVideo.publicationDate = datePut.toISOString();
+            foundVideo.publicationDate =  datePut.toISOString();
             foundVideo.availableResolutions = availableResolutions;
             res.status(204).send(foundVideo)
         } else {
