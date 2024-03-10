@@ -12,20 +12,22 @@ console.log(`Listen port: $(PORT)`
 
 1.____Как делать по правилам  single-responsibility principle:
 1) создаем новый файл setting.ts, выносим в него export const app = express(), app.use и роуты (пример ниже)
-import { app } from './settings'
+import {config} from 'dotenv'
+config()
 
-const port = process.env.PORT || 3999
-
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+export const SETTINGS = {
+    PORT: process.env.PORT || 3003,
+    PATH: {
+        VIDEOS: '/videos',
+    },
+}
 })
 2.____В index.ts оставляем только порт и app.listen():
-import { app } from './settings'
+import {app} from './app'
+import {SETTINGS} from './settings'
 
-const port = process.env.PORT || 3999
-
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+app.listen(SETTINGS.PORT, () => {
+    console.log('...server started')
 })
 3.____ jest.config.ts
 module.exports = {
