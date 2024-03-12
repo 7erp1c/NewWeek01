@@ -1,32 +1,62 @@
 import {req} from './test-helpers'
-import {SETTINGS} from "../src/setting"
 import dotenv from 'dotenv'
+import {app} from "../src/app";
+import {VideoCreateModel} from "../src/models/VideoCreateModel";
+import {request} from "express";
+
 dotenv.config()
-// import {setDB} from '../src/db/db'
-// import {dataset1} from './datasets'
 
 
 describe('/videos', () => {
     beforeAll(async () => {
-        // await req.delete('/testing/all-data')
+        await req.delete('/testing/all-data')
     })
 
-    it('should get empty array', async () => {
-        // setDB()
-
+    it('запросить все курсы', async () => {
         const res = await req
-            .get(SETTINGS.PATH.VIDEOS)
+            .get("/videos")
             .expect(200)
 
-        console.log(res.body)
+        expect([])
 
-        // expect(res.body.length).toBe(0)
+        // expect(res.body.length).toBe(1)
+        // expect(res.body[0]).toEqual(dataset1.videos[0])
     })
-    it('should get not empty array', async () => {
-        // setDB(dataset1)
 
+    let createdVideo: any = null;
+    it('должен создать корректное видео', async () => {
+
+        const videoPostTest : VideoCreateModel = {
+            "title": "New video",
+            "author": "Bi Di Bum",
+            "availableResolutions": ["P144"]
+        }
+
+        const createResponse = await req(app)
+            .post('/videos')
+            .send(videoPostTest)
+            .expect(200)
+
+        createdVideo = createResponse.body;
+
+        expect(createdVideo).toEqual({
+            id: expect.any(Number),
+            title: "New video",
+            author: "Bi Di Bum",
+            availableResolutions: ["P144"]
+        })
+
+        await request(app)
+            .get('/videos')
+            .expect(200,[createdVideo])
+    })
+
+
+
+
+    it('should get not empty array', async () => {
         const res = await req
-            .get(SETTINGS.PATH.VIDEOS)
+            .get("/videos/:id")
             .expect(200)
 
         console.log(res.body)
@@ -34,7 +64,7 @@ describe('/videos', () => {
         // expect(res.body.length).toBe(1)
         // expect(res.body[0]).toEqual(dataset1.videos[0])
     })
-})
 
+})
 
 

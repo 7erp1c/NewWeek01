@@ -97,7 +97,6 @@ export  const videosRouter = Router({})
 
 
         let errorsMessages: any[] = [];
-
         if (!title || !title.trim() || title.length > 40 || title.length < 1) {
             errorsMessages.push(
                 {
